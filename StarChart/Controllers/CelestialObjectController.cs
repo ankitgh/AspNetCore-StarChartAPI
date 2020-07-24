@@ -62,5 +62,65 @@ namespace StarChart.Controllers
 
             return Ok(_context.CelestialObjects);
         }
+
+
+        [HttpPost]
+        public IActionResult Create([FromBody]CelestialObject celestialObject)
+        {
+            _context.CelestialObjects.Add(celestialObject);
+            _context.SaveChanges();
+            return CreatedAtRoute("GetById", new { celestialObject.Id }, celestialObject);
+        }
+
+        [HttpPut("{id}")]
+        public IActionResult Update([FromBody] int id, CelestialObject celestialObject)
+        {
+            var lookedObject = _context.CelestialObjects.Find(id);
+
+            if(lookedObject == null)
+            {
+                return NotFound();
+            }
+
+            lookedObject.Name = celestialObject.Name;
+            lookedObject.OrbitalPeriod = celestialObject.OrbitalPeriod;
+            lookedObject.OrbitedObjectId = celestialObject.OrbitedObjectId;
+            _context.CelestialObjects.Update(lookedObject);
+            _context.SaveChanges();
+            return NoContent();
+        }
+
+        [HttpPatch("{id}/{name}")]
+        public IActionResult RenameObject([FromBody] int id, string name)
+        {
+            var lookedObject = _context.CelestialObjects.Find(id);
+
+            if (lookedObject == null)
+            {
+                return NotFound();
+            }
+
+            lookedObject.Name = name;
+            _context.CelestialObjects.Update(lookedObject);
+            _context.SaveChanges();
+            return NoContent();
+        }
+
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete([FromBody] int id)
+        {
+            var lookedObject = _context.CelestialObjects.Where(x => x.Id == id || x.OrbitedObjectId == id).ToList();
+
+            if (lookedObject == null)
+            {
+                return NotFound();
+            }
+
+            _context.CelestialObjects.RemoveRange(lookedObject);
+            _context.SaveChanges();
+            return NoContent();
+        }
+
     }
 }
